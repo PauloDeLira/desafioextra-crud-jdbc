@@ -13,9 +13,11 @@ public class Cliente {
 
     }
 
-    public Cliente(String nome, String cep) {
+    public Cliente(String nome, String cep, String cidade, String estado) {
         this.nome = nome;
         this.cep = cep;
+        this.cidade = cidade;
+        this.estado = estado;
     }
 
     public int getId() {
