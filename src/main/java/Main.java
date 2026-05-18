@@ -8,6 +8,7 @@ import br.com.desafioextra.service.ViaCepService;
 
 import java.sql.SQLException;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -34,13 +35,13 @@ public class Main {
                                     cadastrarCliente(scanner);
                                     break;
                                 case 2:
-
+                                    listarClientes();
                                     break;
                                 case 3:
-
+                                    atualizarCliente(scanner);
                                     break;
                                 case 4:
-
+                                    deletarCliente(scanner);
                                     break;
                                 case 0:
                                     return;
@@ -118,15 +119,25 @@ public class Main {
           System.out.println("=== CADASTRO DE CLIENTE ===");
           System.out.print("Nome: ");
           String nome = scanner.nextLine();
+
           if(nome == null || nome.isBlank() ){
               System.out.println("Nome não informado!");
               return;
           }
-          System.out.print("CEP (*****-***): ");
-          String cep = scanner.nextLine();
-          if(cep == null || cep.isBlank()){
-              System.out.println("CEP não informado!");
-              return;
+
+          String cep;
+          while (true) {
+              System.out.print("CEP (*****-***): ");
+              cep = scanner.nextLine();
+              if (cep == null || cep.isBlank()) {
+                  System.out.println("CEP não informado!");
+                  continue;
+              }
+              if(cep.replaceAll("\\D","").length() != 8){
+                  System.out.println("CEP deve ter 8 números, tente novamente!");
+                  continue;
+              }
+              break;
           }
 
           ViaCepResponse endereco = ViaCepService.buscarCep(cep);
@@ -140,4 +151,106 @@ public class Main {
       }
     }
 
-}
+    static void listarClientes(){
+        ClienteDAO dao = new ClienteDAO();
+        List<Cliente> clienteList = dao.listar();
+
+        if(clienteList.isEmpty()){
+            System.out.println("Não há clientes para listar");
+            return;
+        }
+
+        System.out.println("=== LISTA DE CLIENTES ===");
+        for (Cliente c : clienteList){
+            System.out.println("ID: " + c.getId() + " | Nome: " + c.getNome() + " | CEP: " + c.getCep() +
+                    " | Cidade: " + c.getCidade() + " | Estado: " + c.getEstado());
+        }
+    }
+
+    static void atualizarCliente(Scanner scanner){
+        ClienteDAO dao = new ClienteDAO();
+        List<Cliente> clienteList = dao.listar();
+        listarClientes();
+
+        try{
+            System.out.println("=== Atualizar Cliente ===");
+            System.out.print("Digite o ID do cliente que você deseja atualizar: ");
+            int id = scanner.nextInt();
+            scanner.nextLine();
+
+            boolean encontrado = false;
+            for(Cliente c : clienteList){
+                if(id == c.getId()){
+                    encontrado = true;
+
+                    System.out.print("Digite o novo nome: ");
+                    String nome = scanner.nextLine();
+                    if(nome == null || nome.isBlank()){
+                        System.out.println("Nome não informado!");
+                        return;
+                    }
+
+                    String cep;
+                    while (true) {
+                        System.out.print("Digite o novo CEP (*****-***): ");
+                        cep = scanner.nextLine();
+                        if (cep == null || cep.isBlank()) {
+                            System.out.println("CEP não informado!");
+                            continue;
+                        }
+                        if(cep.replaceAll("\\D","").length() != 8){
+                            System.out.println("CEP deve ter 8 números, tente novamente!");
+                            continue;
+                        }
+                        break;
+                    }
+
+                    ViaCepResponse endereco = ViaCepService.buscarCep(cep);
+
+                    c.setNome(nome);
+                    c.setCep(endereco.getCep());
+                    c.setCidade(endereco.getLocalidade());
+                    c.setEstado(endereco.getUf());
+                    dao.atualizar(c);
+                    break;
+                }
+            }
+
+            if(!encontrado){
+                System.out.println("ID não encontrado no sistema.");
+            }
+
+        }catch (NullPointerException e){
+            System.out.println("Consulta de CEP falhou: " + e.getMessage());
+        }catch (InputMismatchException e){
+            System.out.println("Utilize apenas números no ID.");
+        }
+    }
+
+    public static void deletarCliente(Scanner scanner){
+        ClienteDAO dao = new ClienteDAO();
+        listarClientes();
+
+        try{
+            System.out.println("Digite o ID do cliente que deseja deletar: ");
+            int id = scanner.nextInt();
+            scanner.nextLine();
+
+            dao.deletar(id);
+
+        }catch (InputMismatchException e){
+            System.out.println("Utilize apenas números no ID!" + e.getMessage());
+        }
+
+
+
+
+
+
+    }
+
+    }
+
+
+
+

@@ -13,9 +13,8 @@ import java.util.List;
 
 public class ClienteDAO {
 
-
+    //insere client na database
     public void salvar(Cliente cliente){
-
         Connection conexao = null;
         PreparedStatement ps = null;
         try{
@@ -32,7 +31,7 @@ public class ClienteDAO {
 
 
         }catch (SQLException e){
-            System.out.println("Erro ao salvar: " + e.getMessage());
+            System.out.println("Erro ao salvar cliente: " + e.getMessage());
         } finally {
             try{
                 if (ps != null){
@@ -48,6 +47,7 @@ public class ClienteDAO {
         }
     }
 
+    //retorna uma lista de todos os clientes da database
     public List<Cliente> listar(){
         Connection conexao = null;
         PreparedStatement ps = null;
@@ -89,11 +89,10 @@ public class ClienteDAO {
                 System.out.println("Erro ao fechar conexão: " + e.getMessage());
             }
         }
-
         return clientes;
-
     }
 
+        //atualiza um cliente da database utilizando o id_cliente como referencia;
         public void atualizar(Cliente cliente){
             Connection conexao = null;
             PreparedStatement ps = null;
@@ -156,7 +155,6 @@ public class ClienteDAO {
                 System.out.println("Erro ao fechar conexão: " + e.getMessage());
             }
         }
-
     }
 
 }
