@@ -311,7 +311,8 @@ public class Main {
                 pedidoDAO.salvar(pedido);
 
             }catch (InputMismatchException e){
-                System.out.println("Valor inválido!");
+                System.out.println("Digite apenas números para o valor!");
+                scanner.nextLine();
             }
         }
 
