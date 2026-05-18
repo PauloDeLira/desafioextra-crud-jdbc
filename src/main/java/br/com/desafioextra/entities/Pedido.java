@@ -12,9 +12,10 @@ public class Pedido {
     }
 
 
-    public Pedido(String descricao, double valor) {
+    public Pedido(String descricao, double valor,int clienteId) {
         this.descricao = descricao;
         this.valor = valor;
+        this.clienteId = clienteId;
     }
 
     public String getDescricao() {

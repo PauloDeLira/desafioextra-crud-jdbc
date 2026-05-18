@@ -1,12 +1,12 @@
 import br.com.desafioextra.dao.ClienteDAO;
 import br.com.desafioextra.dao.PedidoDAO;
-import br.com.desafioextra.database.Conexao;
 import br.com.desafioextra.entities.Cliente;
+import br.com.desafioextra.entities.Pedido;
 import br.com.desafioextra.service.ViaCepResponse;
 import br.com.desafioextra.service.ViaCepService;
 
 
-import java.sql.SQLException;
+
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -54,18 +54,19 @@ public class Main {
                         case 2:
                             menuPedidos();
                             int optionPedido = scanner.nextInt();
+                            scanner.nextLine();
                             switch (optionPedido){
                                 case 1:
-
+                                    cadastrarPedido(scanner);
                                     break;
                                 case 2:
-
+                                    listarPedidos();
                                     break;
                                 case 3:
-
+                                    atualizarPedido(scanner);
                                     break;
                                 case 4:
-
+                                    deletarPedido(scanner);
                                     break;
                                 case 0:
                                     return;
@@ -73,6 +74,7 @@ public class Main {
                                     System.out.println("Opção Invalida.");
                             }
                         break;
+
                         case 0:
                             System.out.println("Finalizando programa.");
                         return;
@@ -81,6 +83,7 @@ public class Main {
                     }
                 }catch (InputMismatchException e){
                     System.out.println("Utilize apenas números, tente novamente.");
+                    scanner.nextLine();
                 }
             }
     }
@@ -99,7 +102,7 @@ public class Main {
         System.out.println("2. Listar clientes");
         System.out.println("3. Atualizar cliente");
         System.out.println("4. Deletar cliente");
-        System.out.println("0. Voltar.");
+        System.out.println("0. Voltar");
         System.out.print("Selecione uma opção: ");
     }
 
@@ -224,32 +227,198 @@ public class Main {
             System.out.println("Consulta de CEP falhou: " + e.getMessage());
         }catch (InputMismatchException e){
             System.out.println("Utilize apenas números no ID.");
+            scanner.nextLine();
         }
     }
 
     public static void deletarCliente(Scanner scanner){
         ClienteDAO dao = new ClienteDAO();
+        List<Cliente> clienteList = dao.listar();
         listarClientes();
 
+        if(clienteList.isEmpty()){
+            return;
+        }
+
         try{
-            System.out.println("Digite o ID do cliente que deseja deletar: ");
+            System.out.print("Digite o ID do cliente que deseja deletar: ");
             int id = scanner.nextInt();
             scanner.nextLine();
 
-            dao.deletar(id);
+            boolean encontrado = false;
+            for(Cliente c : clienteList){
+                if(id == c.getId()){
+                    encontrado = true;
+                    dao.deletar(id);
+                    break;
+                }
+            }
+
+            if(!encontrado){
+                System.out.println("ID não encontrado no sistema.");
+            }
 
         }catch (InputMismatchException e){
-            System.out.println("Utilize apenas números no ID!" + e.getMessage());
+            System.out.println("Utilize apenas números no ID!");
+            scanner.nextLine();
+        }
+    }
+
+
+    public static void cadastrarPedido(Scanner scanner){
+            ClienteDAO clienteDAO = new ClienteDAO();
+            List<Cliente> clienteList = clienteDAO.listar();
+
+            if(clienteList.isEmpty()){
+                System.out.println("Não há clientes cadastrados. Cadastre um cliente primeiro!");
+                return;
+            }
+
+            listarClientes();
+
+            try{
+                System.out.println("=== CADASTRAR PEDIDO ===");
+                System.out.print("Digite o ID do cliente dono do pedido: ");
+                int clienteId = scanner.nextInt();
+                scanner.nextLine();
+
+                boolean clienteEncontrado = false;
+                for(Cliente c : clienteList){
+                    if(clienteId == c.getId()){
+                        clienteEncontrado = true;
+                        break;
+                    }
+                }
+
+                if(!clienteEncontrado){
+                    System.out.println("ID do cliente não encontrado!");
+                    return;
+                }
+
+                System.out.print("Digite a descrição do pedido: ");
+                String descricao = scanner.nextLine();
+                if(descricao == null || descricao.isBlank()){
+                    System.out.println("Descrição não informada!");
+                    return;
+                }
+
+                System.out.print("Digite o valor do pedido: ");
+                double valor = scanner.nextDouble();
+                scanner.nextLine();
+
+                Pedido pedido = new Pedido(descricao, valor, clienteId);
+                PedidoDAO pedidoDAO = new PedidoDAO();
+                pedidoDAO.salvar(pedido);
+
+            }catch (InputMismatchException e){
+                System.out.println("Valor inválido!");
+            }
         }
 
+    public static void listarPedidos(){
+        PedidoDAO dao = new PedidoDAO();
+        List<Pedido> pedidoList = dao.listar();
+
+        if(pedidoList.isEmpty()){
+            System.out.println("Não há pedidos para listar.");
+            return;
+        }
+
+        System.out.println("=== LISTA DE PEDIDOS ===");
+        for(Pedido p : pedidoList){
+            System.out.println("ID: " + p.getId() + " | Descrição: " + p.getDescricao() +
+                    " | Valor: " + p.getValor() + " | Cliente ID: " + p.getClienteId());
+        }
+    }
 
 
+    public static void atualizarPedido(Scanner scanner){
+        PedidoDAO dao = new PedidoDAO();
+        List<Pedido> pedidoList = dao.listar();
 
+        if(pedidoList.isEmpty()){
+            System.out.println("Não há pedidos para atualizar.");
+            return;
+        }
 
+        listarPedidos();
 
+        try{
+            System.out.println("=== ATUALIZAR PEDIDO ===");
+            System.out.print("Digite o ID do pedido que deseja atualizar: ");
+            int id = scanner.nextInt();
+            scanner.nextLine();
+
+            boolean encontrado = false;
+            for(Pedido p : pedidoList){
+                if(id == p.getId()){
+                    encontrado = true;
+
+                    System.out.print("Digite a nova descrição: ");
+                    String descricao = scanner.nextLine();
+                    if(descricao == null || descricao.isBlank()){
+                        System.out.println("Descrição não informada!");
+                        return;
+                    }
+
+                    System.out.print("Digite o novo valor: ");
+                    double valor = scanner.nextDouble();
+                    scanner.nextLine();
+
+                    p.setDescricao(descricao);
+                    p.setValor(valor);
+                    dao.atualizar(p);
+                    break;
+                }
+            }
+
+            if(!encontrado){
+                System.out.println("ID não encontrado no sistema.");
+            }
+
+        }catch (InputMismatchException e){
+            System.out.println("Digite apenas números para o valor!");
+            scanner.nextLine();
+        }
+    }
+
+    public static void deletarPedido(Scanner scanner){
+        PedidoDAO dao = new PedidoDAO();
+        List<Pedido> pedidoList = dao.listar();
+
+        if(pedidoList.isEmpty()){
+            System.out.println("Não há pedidos para deletar.");
+            return;
+        }
+
+        listarPedidos();
+
+        try{
+            System.out.print("Digite o ID do pedido que deseja deletar: ");
+            int id = scanner.nextInt();
+            scanner.nextLine();
+
+            boolean encontrado = false;
+            for(Pedido p : pedidoList){
+                if(id == p.getId()){
+                    encontrado = true;
+                    dao.deletar(id);
+                    break;
+                }
+            }
+
+            if(!encontrado){
+                System.out.println("ID não encontrado no sistema.");
+            }
+
+        }catch (InputMismatchException e){
+            System.out.println("Utilize apenas números no ID!");
+        }
     }
 
     }
+
+
 
 
 
