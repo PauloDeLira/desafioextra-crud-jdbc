@@ -51,12 +51,14 @@ CREATE TABLE pedidos (
 
 1. Copie o arquivo `.env.example` e renomeie para `.env`
 2. Preencha as variáveis com as informações do seu MySQL:
-  DB_HOST=localhost
-  DB_PORT=3306
-  DB_NAME=projeto_crud
-  DB_USER=root
-  DB_PASSWORD=suasenha
 
+```
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=projeto_crud
+DB_USER=root
+DB_PASSWORD=suasenha
+```
 ## Como rodar
 
 1. Clone o repositório
