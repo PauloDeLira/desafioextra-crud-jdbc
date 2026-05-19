@@ -47,6 +47,29 @@ CREATE TABLE pedidos (
 );
 ```
 
+## Estrutura do projeto
+
+```
+src/
+  main/
+    java/
+      br/com/desafioextra/
+        config/
+          Env.java
+        database/
+          Conexao.java
+        dao/
+          ClienteDAO.java
+          PedidoDAO.java
+        entities/
+          Cliente.java
+          Pedido.java
+        service/
+          ViaCepService.java
+          ViaCepResponse.java
+        Main.java
+```
+
 ## Configuração do ambiente
 
 1. Copie o arquivo `.env.example` e renomeie para `.env`
@@ -59,12 +82,29 @@ DB_NAME=projeto_crud
 DB_USER=root
 DB_PASSWORD=suasenha
 ```
+
 ## Como rodar
 
 1. Clone o repositório
 2. Configure o banco de dados conforme acima
 3. Configure o arquivo `.env`
 4. Execute a classe `Main.java`
+
+
+## Fluxo do programa
+
+1. Usuário inicia o programa e vê o menu principal
+2. Seleciona Clientes ou Pedidos
+3. No menu de Clientes pode:
+   - Cadastrar um cliente informando nome e CEP (o sistema busca cidade e estado automaticamente via ViaCEP)
+   - Listar todos os clientes cadastrados
+   - Atualizar nome e CEP de um cliente existente
+   - Deletar um cliente (todos os pedidos vinculados são deletados automaticamente)
+4. No menu de Pedidos pode:
+   - Cadastrar um pedido vinculado a um cliente existente
+   - Listar todos os pedidos cadastrados
+   - Atualizar descrição e valor de um pedido
+   - Deletar um pedido
 
 ## Funcionalidades
 
